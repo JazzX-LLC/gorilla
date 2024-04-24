@@ -130,7 +130,7 @@ if __name__ == '__main__':
     parser.add_argument("--wandb_project", type=str, default="gorilla-api", help="Weights & Biases project name")
     parser.add_argument("--wandb_entity", type=str, default=None, help="Weights & Biases entity name")
     # Arguments for evaluation
-    parser.add_argument("--evaluation_script", type=str, default="/workspaces/gorilla/eval/eval-scripts/ast_eval_th.py", help="Evaluation script to compute accuracy and hallucination")
+    # parser.add_argument("--evaluation_script", type=str, default="/workspaces/gorilla/eval/eval-scripts/ast_eval_th.py", help="Evaluation script to compute accuracy and hallucination")
     parser.add_argument("--api_dataset", type=str, default=None, help="path to your api dataset")
     parser.add_argument(
         "--apibench",
@@ -138,7 +138,7 @@ if __name__ == '__main__':
         default=None,
         help="path to your apibench dataset including the question and answer pairs",
     )
-    parser.add_argument("--local", action='store_false', help="pass this argument to run in local mode")
+    parser.add_argument("--local", action='store_true', help="pass this argument to run in local mode")
     # parser.add_argument("--llm_responses", type=str, default=argparse.SUPPRESS, help="path to the language model responses")
     # add parser argument for debug flag
     parser.add_argument("--debug", action='store_true', help="pass this argument to turn on debug mode")
