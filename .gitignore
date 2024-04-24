@@ -61,3 +61,9 @@ eval/gpt-3.5-turbo_tensorflowhub_0_shot.jsonl
 eval/gpt-3.5-turbo_huggingface_0_shot.jsonl
 eval/gpt_dataset_index.json
 eval/gpt-3.5-turbo_torchhub_bm25.jsonl
+requirements.txt
+eval/gpt3p5eval.sh
+eval/gpt3p5evalretriever.sh
+eval/gpt-3.5-turbo_tensorflow_0_shot.jsonl
+eval/gpt-3.5-turbo_huggingface_gpt.jsonl
+eval/gpt-3.5-turbo_huggingface_bm25.jsonl
