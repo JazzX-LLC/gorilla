@@ -16,6 +16,7 @@ import argparse
 import json
 from tree_sitter import Language, Parser
 import concurrent.futures
+import os
 
 
 # Get all the subtrees given a root_node
@@ -42,7 +43,12 @@ def get_all_sub_trees(root_node):
 
 # Parse the program into AST trees
 def ast_parse(candidate, lang="python"):
-    LANGUAGE = Language("codebleu/parser/my-languages.so", lang)
+    current_script_directory = os.path.dirname(os.path.realpath(__file__))
+    # Append "codebleu" to the directory path
+    codebleu_directory = os.path.join(current_script_directory, "codebleu")
+    languages_path = os.path.join(current_script_directory, "codebleu", "parser", "my-languages.so")
+    LANGUAGE = Language(languages_path, lang)
+    # LANGUAGE = Language("codebleu/parser/my-languages.so", lang)
     parser = Parser()
     parser.set_language(LANGUAGE)
 
@@ -188,6 +194,12 @@ def main(args):
     print("Final Functionality accuracy:", total_correct / num_responses)
     print("Final hallucination:", total_hallucination / num_responses)
 
+    results = {
+        "Final Functionality accuracy": total_correct / num_responses,
+        "Final hallucination": total_hallucination / num_responses
+    }
+
+    return results
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
