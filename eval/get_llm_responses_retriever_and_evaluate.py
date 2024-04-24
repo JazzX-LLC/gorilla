@@ -125,7 +125,7 @@ if __name__ == '__main__':
     parser.add_argument("--api_key", type=str, default=None, help="the api key provided for calling")
     parser.add_argument("--output_file", type=str, default=None, help="the output file this script writes to")
     parser.add_argument("--question_data", type=str, default=None, help="path to the questions data file")
-    parser.add_argument("--api_name", type=str, default=None, help="this will be the api dataset name you are testing, only support ['torchhub', 'tensorhun', 'huggingface'] now")
+    parser.add_argument("--api_name", type=str, default=None, help="this will be the api dataset name you are testing, only support ['torchhub', 'tensorhub', 'huggingface'] now")
     parser.add_argument("--use_wandb", action='store_true', help="pass this argument to turn on Weights & Biases logging of the LLM responses")
     parser.add_argument("--wandb_project", type=str, default="gorilla-api", help="Weights & Biases project name")
     parser.add_argument("--wandb_entity", type=str, default=None, help="Weights & Biases entity name")
@@ -223,6 +223,17 @@ if __name__ == '__main__':
         # debuggig purposes
         ast_eval_th = import_module("eval-scripts.ast_eval_th")
         main = ast_eval_th.main
+        args_evaluation = argparse.Namespace(
+            api_dataset=args.api_dataset,
+            apibench=args.apibench,
+            llm_responses=args.output_file,
+        )
+        evaluation_output_dict = main(args_evaluation)
+
+    if args.api_name == "tensorhub":
+        # debuggig purposes
+        ast_eval_tf = import_module("eval-scripts.ast_eval_tf")
+        main = ast_eval_tf.main
         args_evaluation = argparse.Namespace(
             api_dataset=args.api_dataset,
             apibench=args.apibench,

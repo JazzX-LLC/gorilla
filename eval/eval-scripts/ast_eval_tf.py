@@ -15,7 +15,7 @@
 import argparse
 import json 
 from tree_sitter import Language, Parser
-
+import os
 # Get all the subtrees given a root_node
 def get_all_sub_trees(root_node):
     node_stack = []
@@ -36,13 +36,22 @@ def get_all_sub_trees(root_node):
     return sub_tree_sexp_list
 
 # Parse the program into AST trees
-def ast_parse(candidate, lang='python'):
-    LANGUAGE = Language('codebleu/parser/my-languages.so', lang)
+
+
+# Parse the program into AST trees
+def ast_parse(candidate, lang="python"):
+    current_script_directory = os.path.dirname(os.path.realpath(__file__))
+    # Append "codebleu" to the directory path
+    codebleu_directory = os.path.join(current_script_directory, "codebleu")
+    languages_path = os.path.join(current_script_directory, "codebleu", "parser", "my-languages.so")
+    LANGUAGE = Language(languages_path, lang)
+    # LANGUAGE = Language("codebleu/parser/my-languages.so", lang)
     parser = Parser()
     parser.set_language(LANGUAGE)
-    
-    candidate_tree = parser.parse(bytes(candidate,'utf8')).root_node
+
+    candidate_tree = parser.parse(bytes(candidate, "utf8")).root_node
     return candidate_tree
+
 
 # Get all the arguments in the ast tree
 def get_args(node):
@@ -161,6 +170,13 @@ def main(args):
 
     print('Final Functionality accuracy: ', total_correct / len(llm_responses))
     print('Final hallucination: ', total_hallucination/len(llm_responses))
+
+    results = {
+        "Final Functionality accuracy": total_correct / len(llm_responses),
+        "Final hallucination": total_hallucination / len(llm_responses)
+    }
+
+    return results
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
