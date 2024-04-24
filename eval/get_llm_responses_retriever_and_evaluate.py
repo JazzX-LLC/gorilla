@@ -146,7 +146,7 @@ if __name__ == '__main__':
     # if args.llm_responses is None:
     args.llm_responses = args.output_file
     # Only for debugging - set to true, so we can use the debugger
-    # args.local = True
+    args.local = False
     if args.local:
         print("Running in debug mode")
         args.model = "gpt-3.5-turbo"
@@ -162,10 +162,17 @@ if __name__ == '__main__':
         args.debug = True
         args.llm_responses = "/workspaces/gorilla/eval/gpt-3.5-turbo_torchhub_0_shot.jsonl"
     if args.use_wandb:
+        analysis_type = args.question_data.split('/')[-1]  # Get the last part of the path
+        name_analysis = analysis_type.split('.')[0]  # Get the part before the first dot
+        log_name = name_analysis.split('_')[-3:]
+        log_name_joined = '_'.join(log_name)  # Join the parts with an underscore
+
+
         wandb.init(
             project=args.wandb_project, 
             entity=args.wandb_entity,
-            name=f"{args.model}-{args.api_name}-{args.question_data}-{args.output_file}",
+            name=f"{args.model}-{log_name_joined}",
+            group=args.model,
             config={
                 "api_name": args.api_name,
                 "model": args.model,
@@ -175,7 +182,7 @@ if __name__ == '__main__':
                 "apibench": args.apibench,
                 "llm_responses": args.llm_responses,
             }
-        )
+            )
 
     start_time = time.time()
     # Read the question file
