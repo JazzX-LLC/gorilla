@@ -67,3 +67,4 @@ eval/gpt3p5evalretriever.sh
 eval/gpt-3.5-turbo_tensorflow_0_shot.jsonl
 eval/gpt-3.5-turbo_huggingface_gpt.jsonl
 eval/gpt-3.5-turbo_huggingface_bm25.jsonl
+eval/gpt-3.5-turbo_*.jsonl
