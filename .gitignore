@@ -57,3 +57,5 @@ eval/wandb/
 eval/gpt-3.5-turbo_torchhub_0_shot.jsonl
 wandb/
 eval/gpt-3.5-turbo_torchhub_0_shot_temp.jsonl
+eval/gpt-3.5-turbo_tensorflowhub_0_shot.jsonl
+eval/gpt-3.5-turbo_huggingface_0_shot.jsonl

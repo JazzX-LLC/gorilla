@@ -22,6 +22,11 @@ import os
 import time
 from retrievers import *
 from retrievers.build_json_index import JSONLReader
+import wandb
+
+from importlib import import_module
+class Args:
+    pass
 
 def encode_question(question, api_name):
     """Encode multiple prompt instructions into a single string."""
@@ -83,12 +88,18 @@ def get_response(get_response_input, api_key):
         return None
         
     print("=>",)
-    return {'text': response, "question_id": question_id, "answer_id": "None", "model_id": model, "metadata": {}}
+    # return {'text': response, "question_id": question_id, "answer_id": "None", "model_id": model, "metadata": {}}
+    return {'text': response, 
+            "question_id": question_id,
+              "question": question, 
+              "answer_id": "None", 
+              "model_id": model, "metadata": {}}
 
 def process_entry(entry, api_key):
     question, question_id, api_name, model, retriever = entry
     retrieved_doc = retriever.get_relevant_documents(question)
     result = get_response((question, question_id, api_name, model, retrieved_doc), api_key)
+    wandb.log({"question_id_completed":question_id})
     return result
 
 def write_result_to_file(result, output_file):
@@ -112,7 +123,35 @@ if __name__ == '__main__':
     parser.add_argument("--retriever", type=str, default="bm25", help="which retriever to use")
     parser.add_argument("--num_doc", type=int, default=1, help="top k docs to use")
     parser.add_argument("--api_dataset", type=str, default=None, help="path to the api data")
+    parser.add_argument("--use_wandb", action='store_true', help="pass this argument to turn on Weights & Biases logging of the LLM responses")
+    parser.add_argument("--wandb_project", type=str, default="gorilla-api", help="Weights & Biases project name")
+    parser.add_argument("--wandb_entity", type=str, default=None, help="Weights & Biases entity name")
     args = parser.parse_args()
+
+    if args.use_wandb:
+        analysis_type = args.question_data.split('/')[-1]  # Get the last part of the path
+        name_analysis = analysis_type.split('.')[0]  # Get the part before the first dot
+        log_name = name_analysis.split('_')[-3:]
+        log_name_joined = '_'.join(log_name)  # Join the parts with an underscore
+
+
+        wandb.init(
+            project=args.wandb_project, 
+            entity=args.wandb_entity,
+            name=f"{args.model}-{log_name_joined}-{args.retriever}-retriever",
+            group=args.model,
+            config={
+                "api_name": args.api_name,
+                "model": args.model,
+                "question_data": args.question_data,
+                "output_file": args.output_file,
+                "api_dataset": args.api_dataset,
+                "apibench": args.apibench,
+                "llm_responses": args.llm_responses,
+                "retriever": args.retriever,
+                "num_doc": args.num_doc,
+            }
+            )
 
     assert args.retriever in ["bm25", "gpt"]
     if args.retriever == "gpt":
@@ -162,4 +201,76 @@ if __name__ == '__main__':
         pool.join()
 
     end_time = time.time()
+    elapsed_time = end_time - start_time
     print("Total time used: ", end_time - start_time)
+
+    # Run the evaluation pipeline
+    if args.api_name == "torchhub":
+
+        ast_eval_th = import_module("eval-scripts.ast_eval_th")
+        main = ast_eval_th.main
+        args_evaluation = argparse.Namespace(
+            api_dataset=args.api_dataset,
+            apibench=args.apibench,
+            llm_responses=args.output_file,
+        )
+        evaluation_output_dict = main(args_evaluation)
+
+    if args.api_name == "tensorhub":
+
+        ast_eval_tf = import_module("eval-scripts.ast_eval_tf")
+        main = ast_eval_tf.main
+        args_evaluation = argparse.Namespace(
+            api_dataset=args.api_dataset,
+            apibench=args.apibench,
+            llm_responses=args.output_file,
+        )
+        evaluation_output_dict = main(args_evaluation)
+    if args.api_name == "huggingface":
+
+        ast_eval_hf = import_module("eval-scripts.ast_eval_hf")
+        main = ast_eval_hf.main
+        args_evaluation = argparse.Namespace(
+            api_dataset=args.api_dataset,
+            apibench=args.apibench,
+            llm_responses=args.output_file,
+        )
+        evaluation_output_dict = main(args_evaluation)
+
+    if args.use_wandb:
+        print("\nSaving all responses to Weights & Biases...\n")
+        wandb.summary["elapsed_time_s"] = elapsed_time
+        wandb.log({"elapsed_time_s":elapsed_time})
+
+        line_count = 0 
+        with open(args.output_file, 'r') as file:
+            for i,line in enumerate(file):
+                data = json.loads(line.strip())
+
+                if i == 0:
+                    tbl = wandb.Table(columns=list(data.keys()))
+                if data is not None:
+                    tbl.add_data(*list(data.values()))
+                    line_count+=1
+        
+        # Log the Tale to W&B
+        wandb.log({"llm_eval_responses": tbl})
+        wandb.summary["response_count"] = line_count
+
+        # log evaluation_output_dict in wandb too and display as table
+        wandb.log(evaluation_output_dict)
+        # Create a new table
+        table_evaluation = wandb.Table(data=list(evaluation_output_dict.items()), columns=["Key", "Value"])
+
+        # Log the table
+        wandb.log({"Evaluation Output": table_evaluation})
+
+        # Also log results file as W&B Artifact
+        artifact_model_name = re.sub(r'[^a-zA-Z0-9-_.]', '-', args.model)
+        wandb.log_artifact(args.output_file, 
+            name=f"{args.api_name}-{artifact_model_name}-eval-responses", 
+            # name=f"{args.model}-{args.api_name}-{args.question_data}-{args.output_file}",
+            type=f"eval-responses", 
+            aliases=[f"{line_count}-responses"]
+        )
+        wandb.finish()

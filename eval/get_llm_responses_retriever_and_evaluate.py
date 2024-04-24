@@ -151,16 +151,16 @@ if __name__ == '__main__':
         print("Running in debug mode")
         args.model = "gpt-3.5-turbo"
         # args.api_key = ""
-        args.output_file = "/workspaces/gorilla/eval/gpt-3.5-turbo_torchhub_0_shot_temp.jsonl"
-        args.question_data = "/workspaces/gorilla/eval/eval-data/questions/torchhub/questions_torchhub_0_shot.jsonl"
-        args.api_name = "torchhub"
+        args.output_file = "/workspaces/gorilla/eval/gpt-3.5-turbo_huggingface_0_shot.jsonl"
+        args.question_data = "/workspaces/gorilla/eval/eval-data/questions/huggingface/questions_huggingface_0_shot.jsonl"
+        args.api_name = "huggingface"
         args.use_wandb = True
         args.wandb_project = "FunctionCalling"
         args.wandb_entity = "jazz-benchmark"
-        args.api_dataset = "/workspaces/gorilla/data/api/torchhub_api.jsonl"
-        args.apibench = "/workspaces/gorilla/data/apibench/torchhub_eval.json"
+        args.api_dataset = "/workspaces/gorilla/data/api/huggingface_api.jsonl"
+        args.apibench = "/workspaces/gorilla/data/apibench/huggingface_eval.json"
         args.debug = True
-        args.llm_responses = "/workspaces/gorilla/eval/gpt-3.5-turbo_torchhub_0_shot.jsonl"
+        args.llm_responses = "/workspaces/gorilla/eval/gpt-3.5-turbo_huggingface_0_shot.jsonl"
     if args.use_wandb:
         analysis_type = args.question_data.split('/')[-1]  # Get the last part of the path
         name_analysis = analysis_type.split('.')[0]  # Get the part before the first dot
@@ -220,7 +220,7 @@ if __name__ == '__main__':
 
     # Run the evaluation pipeline
     if args.api_name == "torchhub":
-        # debuggig purposes
+
         ast_eval_th = import_module("eval-scripts.ast_eval_th")
         main = ast_eval_th.main
         args_evaluation = argparse.Namespace(
@@ -231,7 +231,7 @@ if __name__ == '__main__':
         evaluation_output_dict = main(args_evaluation)
 
     if args.api_name == "tensorhub":
-        # debuggig purposes
+
         ast_eval_tf = import_module("eval-scripts.ast_eval_tf")
         main = ast_eval_tf.main
         args_evaluation = argparse.Namespace(
@@ -240,6 +240,17 @@ if __name__ == '__main__':
             llm_responses=args.output_file,
         )
         evaluation_output_dict = main(args_evaluation)
+    if args.api_name == "huggingface":
+
+        ast_eval_hf = import_module("eval-scripts.ast_eval_hf")
+        main = ast_eval_hf.main
+        args_evaluation = argparse.Namespace(
+            api_dataset=args.api_dataset,
+            apibench=args.apibench,
+            llm_responses=args.output_file,
+        )
+        evaluation_output_dict = main(args_evaluation)
+
 
         # args_evaluation = parser.parse_args()
         # # parser_evaluation = argparse.ArgumentParser()
