@@ -281,7 +281,6 @@ if __name__ == '__main__':
         with open(args.output_file, 'r') as file:
             for i,line in enumerate(file):
                 data = json.loads(line.strip())
-
                 if i == 0:
                     tbl = wandb.Table(columns=list(data.keys()))
                 if data is not None:

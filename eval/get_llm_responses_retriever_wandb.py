@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import re
 import argparse
 import sys
 import json
@@ -126,7 +126,15 @@ if __name__ == '__main__':
     parser.add_argument("--use_wandb", action='store_true', help="pass this argument to turn on Weights & Biases logging of the LLM responses")
     parser.add_argument("--wandb_project", type=str, default="gorilla-api", help="Weights & Biases project name")
     parser.add_argument("--wandb_entity", type=str, default=None, help="Weights & Biases entity name")
+    # parser.add_argument("--api_dataset", type=str, default=None, help="path to your api dataset")
+    parser.add_argument(
+        "--apibench",
+        type=str,
+        default=None,
+        help="path to your apibench dataset including the question and answer pairs",
+    )
     args = parser.parse_args()
+    args.llm_responses = args.output_file
 
     if args.use_wandb:
         analysis_type = args.question_data.split('/')[-1]  # Get the last part of the path
