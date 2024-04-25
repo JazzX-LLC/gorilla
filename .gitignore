@@ -68,3 +68,6 @@ eval/gpt-3.5-turbo_tensorflow_0_shot.jsonl
 eval/gpt-3.5-turbo_huggingface_gpt.jsonl
 eval/gpt-3.5-turbo_huggingface_bm25.jsonl
 eval/gpt-3.5-turbo_*.jsonl
+eval/gpt-4_.jsonl
+eval/gpt-4-turbo_tensorflow_0_shot.jsonl
+eval/gpt-4_torchhub_0_shot.jsonl
