@@ -148,6 +148,7 @@ if __name__ == '__main__':
     # Only for debugging - set to true, so we can use the debugger
     args.local = False
     if args.local:
+        # Only fir debugging - ignore it
         print("Running in debug mode")
         args.model = "gpt-3.5-turbo"
         # args.api_key = ""
@@ -167,22 +168,37 @@ if __name__ == '__main__':
         log_name = name_analysis.split('_')[-3:]
         log_name_joined = '_'.join(log_name)  # Join the parts with an underscore
 
-
-        wandb.init(
-            project=args.wandb_project, 
-            entity=args.wandb_entity,
-            name=f"{args.model}-{log_name_joined}",
-            group=args.model,
-            config={
-                "api_name": args.api_name,
-                "model": args.model,
-                "question_data": args.question_data,
-                "output_file": args.output_file,
-                "api_dataset": args.api_dataset,
-                "apibench": args.apibench,
-                "llm_responses": args.llm_responses,
-            }
-            )
+        if os.environ.get("WANDB_RUN_GROUP"):
+            wandb.init(
+                project=args.wandb_project, 
+                entity=args.wandb_entity,
+                name=f"{args.model}-{log_name_joined}",
+                config={
+                    "api_name": args.api_name,
+                    "model": args.model,
+                    "question_data": args.question_data,
+                    "output_file": args.output_file,
+                    "api_dataset": args.api_dataset,
+                    "apibench": args.apibench,
+                    "llm_responses": args.llm_responses,
+                }
+                )
+        else:
+            wandb.init(
+                project=args.wandb_project, 
+                entity=args.wandb_entity,
+                name=f"{args.model}-{log_name_joined}",
+                group=f"{args.model}",
+                config={
+                    "api_name": args.api_name,
+                    "model": args.model,
+                    "question_data": args.question_data,
+                    "output_file": args.output_file,
+                    "api_dataset": args.api_dataset,
+                    "apibench": args.apibench,
+                    "llm_responses": args.llm_responses,
+                }
+                )
 
     start_time = time.time()
     # Read the question file
