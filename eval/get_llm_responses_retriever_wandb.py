@@ -148,7 +148,6 @@ if __name__ == '__main__':
                 project=args.wandb_project, 
                 entity=args.wandb_entity,
                 name=f"{args.model}-{log_name_joined}-{args.retriever}-retriever",
-                group=args.model,
                 config={
                     "api_name": args.api_name,
                     "model": args.model,
@@ -164,6 +163,7 @@ if __name__ == '__main__':
         else:
             wandb.init(
                 project=args.wandb_project, 
+                group=args.model,
                 entity=args.wandb_entity,
                 name=f"{args.model}-{log_name_joined}-{args.retriever}-retriever",
                 config={
