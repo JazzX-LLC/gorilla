@@ -142,24 +142,42 @@ if __name__ == '__main__':
         log_name = name_analysis.split('_')[-3:]
         log_name_joined = '_'.join(log_name)  # Join the parts with an underscore
 
+        if os.environ.get("WANDB_RUN_GROUP"):
 
-        wandb.init(
-            project=args.wandb_project, 
-            entity=args.wandb_entity,
-            name=f"{args.model}-{log_name_joined}-{args.retriever}-retriever",
-            group=args.model,
-            config={
-                "api_name": args.api_name,
-                "model": args.model,
-                "question_data": args.question_data,
-                "output_file": args.output_file,
-                "api_dataset": args.api_dataset,
-                "apibench": args.apibench,
-                "llm_responses": args.llm_responses,
-                "retriever": args.retriever,
-                "num_doc": args.num_doc,
-            }
-            )
+            wandb.init(
+                project=args.wandb_project, 
+                entity=args.wandb_entity,
+                name=f"{args.model}-{log_name_joined}-{args.retriever}-retriever",
+                group=args.model,
+                config={
+                    "api_name": args.api_name,
+                    "model": args.model,
+                    "question_data": args.question_data,
+                    "output_file": args.output_file,
+                    "api_dataset": args.api_dataset,
+                    "apibench": args.apibench,
+                    "llm_responses": args.llm_responses,
+                    "retriever": args.retriever,
+                    "num_doc": args.num_doc,
+                }
+                )
+        else:
+            wandb.init(
+                project=args.wandb_project, 
+                entity=args.wandb_entity,
+                name=f"{args.model}-{log_name_joined}-{args.retriever}-retriever",
+                config={
+                    "api_name": args.api_name,
+                    "model": args.model,
+                    "question_data": args.question_data,
+                    "output_file": args.output_file,
+                    "api_dataset": args.api_dataset,
+                    "apibench": args.apibench,
+                    "llm_responses": args.llm_responses,
+                    "retriever": args.retriever,
+                    "num_doc": args.num_doc,
+                }
+                )
 
     assert args.retriever in ["bm25", "gpt"]
     if args.retriever == "gpt":
